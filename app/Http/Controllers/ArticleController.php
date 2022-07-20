@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ArticleController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function index()
     {
-        dd('hello World');
+        return view('article.index', ['article' => Article::all()]);
     }
 
     /**
@@ -23,18 +25,30 @@ class ArticleController extends Controller
      */
     public function create()
     {
-        //
+        $article = new Article();
+        return view('article.crete', compact('article'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response|\Illuminate\Routing\Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request, Mailer $mailer)
     {
-        //
+        //псевдокод
+        $data = $request->request->all();
+        unset($data['_token']);
+        $article = new Article(($data));
+
+        try {
+            $article->save();
+            $mailer->sendSuccessEmail($article->head . 'was created!');
+        } catch (\Throwable $exception) {
+            Log::error('something happened!', ['name' => $article->head, 'ex' => $exception]);
+        }
+        return redirect('article');
     }
 
     /**

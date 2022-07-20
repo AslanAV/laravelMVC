@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Article extends Model
 {
+    protected $fillable = ['head', 'body', 'category_id'];
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
