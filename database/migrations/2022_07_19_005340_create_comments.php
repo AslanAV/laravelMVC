@@ -23,7 +23,7 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete()
                 ->references('id')
-                ->on('article')
+                ->on('articles')
             ;
             $table->timestamps();
         });

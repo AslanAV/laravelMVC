@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Services\DTO\ArticleDTO;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
 
 /**
  * @property string $head
@@ -19,4 +19,11 @@ class Article extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function importToDTO()
+    {
+        //code
+        return new ArticleDTO();
+    }
+
 }

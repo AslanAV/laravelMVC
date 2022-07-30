@@ -2,10 +2,15 @@
 
 namespace App\Providers;
 
+use App\Events\ArticleWasCreate;
+use App\Events\PodcastProcessed;
+use App\Listeners\SendPodcastNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -18,6 +23,9 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        PodcastProcessed::class => [
+            SendPodcastNotification::class,
+        ],
     ];
 
     /**
@@ -27,7 +35,16 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Event::listen(function (ArticleWasCreate $event) {
+            $emailSubject = $event->payload;
+            Mail::send('templates.email', [], function ($message) use ($emailSubject) {
+                $message->to('hello@example.com')->subject($emailSubject);
+            });
+        });
+
+        Event::listen(function (ArticleWasCreate $event) {
+            Log::error($event->payload);
+        });
     }
 
     /**
@@ -37,6 +54,6 @@ class EventServiceProvider extends ServiceProvider
      */
     public function shouldDiscoverEvents()
     {
-        return false;
+        return true;
     }
 }
